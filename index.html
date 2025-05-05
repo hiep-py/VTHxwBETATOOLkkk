@@ -10,7 +10,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">VTH Tool</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -44,14 +44,14 @@
         <section id="main" class="screen active">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="card-title">VTH Tool</h2>
+                    <h2 class="card-title typing-animation">VTH Tool</h2>
                     <div id="user-info" class="mb-3"></div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary" onclick="showScreen('input')">Nhập phòng</button>
-                        <button class="btn btn-info" onclick="showScreen('help')">Trợ giúp</button>
-                        <button class="btn btn-success" onclick="showScreen('history')">Lịch sử</button>
-                        <button class="btn btn-secondary" onclick="showScreen('about')">Giới thiệu</button>
-                        <button class="btn btn-danger" onclick="endSession()">Kết thúc Session</button>
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-primary" onclick="showScreen('input')"><i class="fas fa-sign-in-alt me-2"></i>Nhập phòng</button>
+                        <button class="btn btn-info" onclick="showScreen('help')"><i class="fas fa-question-circle me-2"></i>Trợ giúp</button>
+                        <button class="btn btn-success" onclick="showScreen('history')"><i class="fas fa-history me-2"></i>Lịch sử</button>
+                        <button class="btn btn-secondary" onclick="showScreen('about')"><i class="fas fa-info-circle me-2"></i>Giới thiệu</button>
+                        <button class="btn btn-danger" onclick="endSession()"><i class="fas fa-power-off me-2"></i>Kết thúc Session</button>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-light">
+    <footer class="footer mt-auto py-3">
         <div class="container text-center">
             <span class="text-muted">© BETA TOOL 2025 - Công cụ miễn phí, cấm mua bán</span>
         </div>

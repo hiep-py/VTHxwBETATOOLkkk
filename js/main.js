@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupRoomGrid();
     loadHelpContent();
     loadAboutContent();
+    
+    // Add smooth appearance
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+    }, 200);
 });
 
 // Initialize app state
@@ -50,52 +55,76 @@ function setupEventListeners() {
     });
 }
 
-// Show selected screen
+// Show selected screen with animation
 function showScreen(screenId) {
-    // Hide all screens
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
+    // Add exit animation
+    document.querySelectorAll('.screen.active').forEach(screen => {
+        screen.style.opacity = '0';
+        screen.style.transform = 'translateY(20px)';
     });
     
-    // Show selected screen
-    const selectedScreen = document.getElementById(screenId);
-    selectedScreen.classList.add('active');
-    
-    // Update navigation
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${screenId}`) {
-            link.classList.add('active');
+    // Delay for animation
+    setTimeout(() => {
+        // Hide all screens
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+        
+        // Show selected screen
+        const selectedScreen = document.getElementById(screenId);
+        selectedScreen.classList.add('active');
+        
+        // Trigger entrance animation (already handled by CSS transition)
+        setTimeout(() => {
+            selectedScreen.style.opacity = '';
+            selectedScreen.style.transform = '';
+        }, 50);
+        
+        // Update navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${screenId}`) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Special handling for screens
+        if (screenId === 'history') {
+            updateHistory();
         }
-    });
-    
-    // Special handling for screens
-    if (screenId === 'history') {
-        updateHistory();
-    }
+    }, 300);
 }
 
 // Update user info
 function updateUserInfo() {
     const userInfo = document.getElementById('user-info');
     userInfo.innerHTML = `
-        <p><strong>Người dùng:</strong> ${navigator.userAgent}</p>
-        <p><strong>Hệ điều hành:</strong> ${navigator.platform}</p>
-        <p><strong>Session ID:</strong> ${localStorage.getItem('currentSessionId')}</p>
+        <p><i class="fas fa-user me-2"></i><strong>Người dùng:</strong> ${navigator.userAgent}</p>
+        <p><i class="fas fa-desktop me-2"></i><strong>Hệ điều hành:</strong> ${navigator.platform}</p>
+        <p><i class="fas fa-fingerprint me-2"></i><strong>Session ID:</strong> ${localStorage.getItem('currentSessionId')}</p>
     `;
 }
 
-// Setup room grid
+// Setup room grid with animation
 function setupRoomGrid() {
     const roomGrid = document.getElementById('roomGrid');
     roomGrid.innerHTML = '';
     
-    Object.entries(VALID_ROOMS).forEach(([code, name]) => {
+    Object.entries(VALID_ROOMS).forEach(([code, name], index) => {
         const button = document.createElement('button');
         button.className = `room-button room-${code.toLowerCase()}`;
         button.innerHTML = `${ROOM_ICONS[code]}<br>${code}`;
+        button.style.opacity = '0';
+        button.style.transform = 'scale(0.8)';
         button.onclick = () => processRoom(code);
+        
         roomGrid.appendChild(button);
+        
+        // Staggered animation
+        setTimeout(() => {
+            button.style.opacity = '1';
+            button.style.transform = 'scale(1)';
+        }, 100 * index);
     });
 }
 
@@ -104,12 +133,19 @@ function processRoom(roomCode) {
     const resultLayout = document.getElementById('resultLayout');
     resultLayout.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
     
-    // Calculate probabilities
-    const probabilities = calculateProbabilities(roomCode);
-    showResults(roomCode, probabilities);
+    // Add haptic feedback on supported devices
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+    
+    // Calculate probabilities with a slight delay to show loading
+    setTimeout(() => {
+        const probabilities = calculateProbabilities(roomCode);
+        showResults(roomCode, probabilities);
+    }, 800);
 }
 
-// Show results
+// Show results with animated progress bars
 function showResults(roomCode, probabilities) {
     const resultLayout = document.getElementById('resultLayout');
     const sortedProbs = Object.entries(probabilities)
@@ -121,37 +157,69 @@ function showResults(roomCode, probabilities) {
             <h3>${ROOM_ICONS[roomCode]} ${roomCode} - ${VALID_ROOMS[roomCode]}</h3>
     `;
     
+    // First render progress bars with 0 width
     sortedProbs.forEach(([room, prob], index) => {
         const rating = getRating(prob);
         html += `
-            <div class="mt-3">
-                <h4>${index + 1}. ${ROOM_ICONS[room]} ${room}: ${prob.toFixed(1)}%</h4>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: ${prob}%" 
-                         aria-valuenow="${prob}" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="mt-4">
+                <div class="d-flex justify-content-between">
+                    <h4>${index + 1}. ${ROOM_ICONS[room]} ${room}: <span class="probability-value">0</span>%</h4>
+                    <div class="rating">${rating}</div>
                 </div>
-                <p class="text-end">${rating}</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-${index}" role="progressbar" style="width: 0%" 
+                         data-value="${prob}" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
             </div>
         `;
     });
     
     html += '</div>';
     resultLayout.innerHTML = html;
+    
+    // Then animate the progress bars
+    setTimeout(() => {
+        sortedProbs.forEach(([room, prob], index) => {
+            const progressBar = document.querySelector(`.progress-bar-${index}`);
+            const valueDisplay = progressBar.closest('.mt-4').querySelector('.probability-value');
+            
+            // Animate progress bar
+            progressBar.style.width = `${prob}%`;
+            
+            // Animate number
+            animateValue(valueDisplay, 0, prob, 1500);
+        });
+    }, 300);
+}
+
+// Animate number counting up
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        obj.innerHTML = value.toFixed(1);
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
 }
 
 // Get rating based on probability
 function getRating(prob) {
-    if (prob >= 70) return '<span class="text-success">⭐⭐⭐ Rất tốt</span>';
-    if (prob >= 50) return '<span class="text-warning">⭐⭐ Khá tốt</span>';
-    if (prob >= 30) return '<span class="text-info">⭐ Trung bình</span>';
-    return '<span class="text-danger">❌ Không khuyến nghị</span>';
+    if (prob >= 70) return '<span class="text-success"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> Rất tốt</span>';
+    if (prob >= 50) return '<span class="text-warning"><i class="fas fa-star"></i><i class="fas fa-star"></i> Khá tốt</span>';
+    if (prob >= 30) return '<span class="text-info"><i class="fas fa-star"></i> Trung bình</span>';
+    return '<span class="text-danger"><i class="fas fa-times-circle"></i> Không khuyến nghị</span>';
 }
 
 // Load help content
 function loadHelpContent() {
     const helpContent = document.getElementById('helpContent');
     helpContent.innerHTML = `
-        <h3>🎯 Cách sử dụng:</h3>
+        <h3><i class="fas fa-bullseye"></i> Cách sử dụng:</h3>
         <ol>
             <li>Chọn "Nhập phòng" từ menu chính</li>
             <li>Nhập mã phòng (VD: NK, PH, PGD...)</li>
@@ -159,14 +227,14 @@ function loadHelpContent() {
             <li>Chọn mã phòng tiếp theo hoặc quay lại menu</li>
         </ol>
         
-        <h3>🏢 Các phòng hợp lệ:</h3>
+        <h3><i class="fas fa-building"></i> Các phòng hợp lệ:</h3>
         <ul>
             ${Object.entries(VALID_ROOMS).map(([code, name]) => 
-                `<li><span class="room-${code.toLowerCase()}">${ROOM_ICONS[code]} ${code} - ${name}</span></li>`
+                `<li><span class="badge room-${code.toLowerCase()}">${ROOM_ICONS[code]} ${code}</span> - ${name}</li>`
             ).join('')}
         </ul>
         
-        <h3>🤖 Mô hình AI:</h3>
+        <h3><i class="fas fa-robot"></i> Mô hình AI:</h3>
         <ul>
             <li>Mỗi lần khởi động ứng dụng tạo một session mới</li>
             <li>AI phân tích mẫu lặp lại trong các session</li>
@@ -180,28 +248,28 @@ function loadHelpContent() {
 function loadAboutContent() {
     const aboutContent = document.getElementById('aboutContent');
     aboutContent.innerHTML = `
-        <h3>VTH Tool</h3>
+        <h3><i class="fas fa-info-circle"></i> VTH Tool</h3>
         <p><strong>Phát triển bởi:</strong> Hiep - BETA TOOL</p>
         <p><strong>Phiên bản:</strong> 0.1 (Miễn phí)</p>
         
         <div class="alert alert-danger">
-            <strong>CÔNG CỤ HOÀN TOÀN MIỄN PHÍ - CẤM MUA BÁN</strong>
+            <i class="fas fa-exclamation-triangle me-2"></i><strong>CÔNG CỤ HOÀN TOÀN MIỄN PHÍ - CẤM MUA BÁN</strong>
         </div>
         
-        <h3>Thông tin liên hệ:</h3>
-        <ul>
-            <li><a href="https://betatool.netlify.app/" target="_blank">Website: BETA TOOL</a></li>
-            <li><a href="https://t.me/addlist/kneR3MNq7Kc5ZjY1" target="_blank">Telegram: Nhóm BETA TOOL</a></li>
-            <li><a href="https://www.youtube.com/@beta_tool" target="_blank">YouTube: BETA TOOL</a></li>
+        <h3><i class="fas fa-address-card"></i> Thông tin liên hệ:</h3>
+        <ul class="contact-list">
+            <li><a href="https://betatool.netlify.app/" target="_blank"><i class="fas fa-globe me-2"></i>Website: BETA TOOL</a></li>
+            <li><a href="https://t.me/addlist/kneR3MNq7Kc5ZjY1" target="_blank"><i class="fab fa-telegram me-2"></i>Telegram: Nhóm BETA TOOL</a></li>
+            <li><a href="https://www.youtube.com/@beta_tool" target="_blank"><i class="fab fa-youtube me-2"></i>YouTube: BETA TOOL</a></li>
         </ul>
         
-        <h3>Giới thiệu:</h3>
+        <h3><i class="fas fa-bookmark"></i> Giới thiệu:</h3>
         <p>VTH Tool là một công cụ được phát triển bởi nhóm BETA TOOL nhằm hỗ trợ cộng đồng.
         Chúng tôi tạo ra công cụ này với mục tiêu hỗ trợ anh em trên hành trình MMO.
         Ứng dụng này là HOÀN TOÀN MIỄN PHÍ và nghiêm cấm việc mua bán dưới mọi hình thức.</p>
         
         <div class="alert alert-warning">
-            Nếu bạn phải trả tiền để có được ứng dụng này, hãy báo cáo cho chúng tôi!
+            <i class="fas fa-exclamation-circle me-2"></i>Nếu bạn phải trả tiền để có được ứng dụng này, hãy báo cáo cho chúng tôi!
         </div>
     `;
 }
@@ -217,26 +285,26 @@ function updateHistory() {
     }
     
     let html = `
-        <h3>Lịch sử nhập (${history.length} bản ghi gần nhất)</h3>
+        <h3><i class="fas fa-clock me-2"></i>Lịch sử nhập (${history.length} bản ghi gần nhất)</h3>
         <div class="list-group">
     `;
     
     history.forEach((entry, index) => {
         const date = new Date(entry.timestamp);
         const sessionStatus = entry.status === 'completed' ? 
-            '<span class="badge bg-success">Hoàn thành</span>' : 
-            '<span class="badge bg-primary">Đang tiếp tục</span>';
+            '<span class="badge bg-success"><i class="fas fa-check me-1"></i>Hoàn thành</span>' : 
+            '<span class="badge bg-primary"><i class="fas fa-spinner me-1"></i>Đang tiếp tục</span>';
             
         html += `
-            <div class="list-group-item history-item">
+            <div class="list-group-item history-item fade-in" style="animation-delay: ${index * 100}ms">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <strong>${index + 1}. ${ROOM_ICONS[entry.room]} ${entry.room} - ${VALID_ROOMS[entry.room]}</strong>
                         <br>
-                        <small>${date.toLocaleString()}</small>
+                        <small><i class="far fa-clock me-1"></i>${date.toLocaleString()}</small>
                     </div>
                     <div class="text-end">
-                        <small class="text-muted">Session: ${entry.sessionId.slice(-4)}</small>
+                        <small class="text-muted"><i class="fas fa-fingerprint me-1"></i>Session: ${entry.sessionId.slice(-4)}</small>
                         <br>
                         ${sessionStatus}
                     </div>
@@ -249,36 +317,32 @@ function updateHistory() {
     historyLayout.innerHTML = html;
 }
 
-// End current session
+// End Session
 function endSession() {
-    if (confirm('Bạn có chắc chắn muốn kết thúc session hiện tại?')) {
-        // Lưu session hiện tại vào lịch sử
-        const currentSessionId = localStorage.getItem('currentSessionId');
-        const data = loadData();
-        const username = 'default';
+    if (confirm('Bạn có chắc muốn kết thúc session hiện tại?')) {
+        // Add subtle animation effect
+        document.body.style.opacity = '0.8';
         
-        if (data.sequences[username]) {
-            const currentSession = data.sequences[username].find(s => s.session_id === currentSessionId);
-            if (currentSession && currentSession.entries.length > 0) {
-                // Thêm thông tin kết thúc session
-                currentSession.end_time = Date.now();
-                currentSession.status = 'completed';
-                saveData(data);
-            }
-        }
-        
-        // Tạo session mới
-        localStorage.setItem('currentSessionId', Date.now().toString());
-        
-        // Cập nhật thông tin người dùng
-        updateUserInfo();
-        
-        // Hiển thị thông báo
-        alert('Session đã được kết thúc. Session mới đã được tạo.');
-        
-        // Cập nhật lịch sử nếu đang ở màn hình lịch sử
-        if (document.getElementById('history').classList.contains('active')) {
-            updateHistory();
-        }
+        setTimeout(() => {
+            localStorage.setItem('currentSessionId', Date.now().toString());
+            localStorage.setItem('currentHistory', JSON.stringify([]));
+            updateUserInfo();
+            
+            // Reset UI with animation
+            document.body.style.opacity = '1';
+            
+            // Show confirmation
+            const mainScreen = document.querySelector('#main .card-body');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success mt-3 fade-in';
+            alert.innerHTML = '<i class="fas fa-check-circle me-2"></i>Session đã được kết thúc thành công!';
+            mainScreen.appendChild(alert);
+            
+            // Remove alert after 3 seconds
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        }, 300);
     }
 } 
