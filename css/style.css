@@ -1,0 +1,115 @@
+/* General Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* Room Grid */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.room-button {
+    height: 90px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.room-button:hover {
+    transform: scale(1.05);
+}
+
+/* Room Colors */
+.room-nk { background-color: #FF9800; }
+.room-ph { background-color: #2196F3; }
+.room-pgd { background-color: #9C27B0; }
+.room-ptc { background-color: #4CAF50; }
+.room-pns { background-color: #E91E63; }
+.room-ptv { background-color: #00BCD4; }
+.room-vp { background-color: #3F51B5; }
+.room-pgs { background-color: #795548; }
+
+/* Result Cards */
+.result-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+/* History Items */
+.history-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .room-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .card {
+        margin: 0.5rem;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 

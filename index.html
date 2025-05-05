@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTH Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">VTH Tool</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#main">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#input">Nhập phòng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#help">Trợ giúp</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#history">Lịch sử</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Giới thiệu</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Main Screen -->
+        <section id="main" class="screen active">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">VTH Tool</h2>
+                    <div id="user-info" class="mb-3"></div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="showScreen('input')">Nhập phòng</button>
+                        <button class="btn btn-info" onclick="showScreen('help')">Trợ giúp</button>
+                        <button class="btn btn-success" onclick="showScreen('history')">Lịch sử</button>
+                        <button class="btn btn-secondary" onclick="showScreen('about')">Giới thiệu</button>
+                        <button class="btn btn-danger" onclick="endSession()">Kết thúc Session</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Input Screen -->
+        <section id="input" class="screen">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Nhập phòng</h2>
+                    <div class="room-grid" id="roomGrid"></div>
+                    <div id="resultLayout" class="mt-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Help Screen -->
+        <section id="help" class="screen">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Trợ giúp</h2>
+                    <div id="helpContent"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Screen -->
+        <section id="history" class="screen">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Lịch sử</h2>
+                    <div id="historyLayout"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Screen -->
+        <section id="about" class="screen">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Giới thiệu</h2>
+                    <div id="aboutContent"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© BETA TOOL 2025 - Công cụ miễn phí, cấm mua bán</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/calculator.obf.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
